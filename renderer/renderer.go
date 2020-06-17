@@ -1,17 +1,16 @@
 package renderer
 
 import (
-	"bufio"
-	"fmt"
 	"log"
 	"strconv"
 	"strings"
 	"text-editor/data"
+	"text-editor/netclient"
 )
 
 const (
-	row_char = 8
-	col_char = 14
+	row_char = 14
+	col_char = 8
 )
 
 type Renderer interface {
@@ -20,13 +19,13 @@ type Renderer interface {
 
 type SimpleRenderer struct {
 	dataStore textdata.DataStore
-	writer    *bufio.Writer
+	client    netclient.Client
 }
 
-func NewRenderer(dataStore textdata.DataStore, writer *bufio.Writer) Renderer {
+func NewRenderer(dataStore textdata.DataStore, client netclient.Client) Renderer {
 	return &SimpleRenderer{
 		dataStore: dataStore,
-		writer:    writer,
+		client:    client,
 	}
 }
 
@@ -64,19 +63,17 @@ func (s *SimpleRenderer) send(rowPixel int, colPixel int, value byte) error {
 	serverString[1] = strconv.Itoa(colPixel * col_char)
 	serverString[2] = strconv.Itoa(rowPixel * row_char)
 	serverString[4] = string(value)
-	n, err := s.writer.Write([]byte(strings.Join(serverString[:], ",") + "\n"))
+	err := s.client.Send([]byte(strings.Join(serverString[:], ",") + "\n"))
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%d bytes sent to server \n", n)
-
 	return nil
 }
 
 func updatePosition(rowPixel, colPixel, colSize int) (int, int) {
 	colPixel = colPixel + 1
 	if colPixel > colSize {
-		return rowPixel+1, 0
+		return rowPixel + 1, 0
 	} else {
 		return rowPixel, colPixel
 	}

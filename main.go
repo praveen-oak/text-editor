@@ -1,35 +1,32 @@
 package main
 
 import (
-	"bufio"
 	"log"
-	"net"
+	"text-editor/netclient"
+
 	textdata "text-editor/data"
-	"text-editor/data/renderer"
+	"text-editor/renderer"
 )
 
 func main() {
-	tcpAddr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:5005")
-	if err != nil {
-		log.Fatalf("Error in creating tcp address. Exiting")
-	}
-	conn, err := net.DialTCP("tcp", nil, tcpAddr)
-	if err != nil {
-		log.Fatalf("Error in creating tcp connection. Exiting")
-	}
-	data := make([]byte, 1024)
-	reader := bufio.NewReader(conn)
-	writer := bufio.NewWriter(conn)
+	client, err := netclient.NewSocketClient("127.0.0.1", "5005")
 	dataStore := textdata.NewArrayStore()
+	dataStore.AppendRow()
+	dataStore.AppendChar(0, 'a')
+	dataStore.AppendChar(0, 'b')
+	dataStore.AppendChar(0, 'c')
+	dataStore.AppendChar(0, 'd')
+	arrayRenderer := renderer.NewRenderer(dataStore, client)
 
-	arrayRenderer := renderer.NewRenderer(dataStore, writer)
+	if err != nil {
+		log.Fatalf("Error in creating connection to server. Error : %+v", err)
+	}
+
 	for {
-		i, err := reader.Read(data)
+		_, err := client.Read()
 		if err != nil {
 			log.Print("Error in reading from server")
 		}
-		log.Print("Read bytes from server data", i, string(data[:i]))
 		arrayRenderer.RefreshScreen(803, 603)
 	}
-
 }
