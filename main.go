@@ -8,7 +8,7 @@ import (
 	"text-editor/data/renderer"
 )
 
-func main(){
+func main() {
 	tcpAddr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:5005")
 	if err != nil {
 		log.Fatalf("Error in creating tcp address. Exiting")
@@ -29,14 +29,7 @@ func main(){
 			log.Print("Error in reading from server")
 		}
 		log.Print("Read bytes from server data", i, string(data[:i]))
-		dataStore.AppendRow()
-		dataStore.AppendChar(0, 'a')
-		dataStore.AppendChar(0, 'b')
-		dataStore.AppendChar(0, 'c')
-		dataStore.AppendChar(0, 'd')
 		arrayRenderer.RefreshScreen(803, 603)
 	}
 
-
 }
-

@@ -4,19 +4,19 @@ import (
 	"fmt"
 )
 
-type DataStore interface{
+type DataStore interface {
 	ReadChar(x, y int) (byte, error)
 	UpdateChar(x, y int, c byte) error
 	AppendChar(x int, c byte) error
 	DeleteChar(x, y int) error
 	AppendRow() error
 	InsertRow(x int) error
+	Reset() error
 }
 
 type ArrayStore struct {
 	LineArray [][]byte
-	Rows int
-
+	Rows      int
 }
 
 func NewArrayStore() DataStore {
@@ -101,5 +101,11 @@ func (a *ArrayStore) checkIfCharExists(row, column int) error {
 	if column >= len(r) {
 		return fmt.Errorf("arrayStore: column %d of row %d requested to be read does not exist", column, row)
 	}
+	return nil
+}
+
+func (a *ArrayStore) Reset() error {
+	a.Rows = 0
+	a.LineArray = make([][]byte, 0)
 	return nil
 }
