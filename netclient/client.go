@@ -44,10 +44,9 @@ func (sc *SocketClient) Read() ([]byte, error) {
 }
 
 func (sc *SocketClient) Send(b []byte) error {
-	i, err := sc.writer.Write(b)
+	_, err := sc.writer.Write(b)
 	if err != nil {
 		return fmt.Errorf("Error in writing to server. Error : %+v", err)
 	}
-	fmt.Print("Sent %d bytes to server\n", i)
 	return nil
 }

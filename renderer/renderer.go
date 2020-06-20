@@ -14,22 +14,20 @@ const (
 )
 
 type Renderer interface {
-	RefreshScreen(windowLength, windowHeight int) error
+	RefreshScreen(dataStore textdata.DataStore, windowLength, windowHeight int) error
 }
 
 type SimpleRenderer struct {
-	dataStore textdata.DataStore
-	client    netclient.Client
+	client netclient.Client
 }
 
-func NewRenderer(dataStore textdata.DataStore, client netclient.Client) Renderer {
+func NewRenderer(client netclient.Client) Renderer {
 	return &SimpleRenderer{
-		dataStore: dataStore,
-		client:    client,
+		client: client,
 	}
 }
 
-func (s *SimpleRenderer) RefreshScreen(windowLength, windowHeight int) error {
+func (s *SimpleRenderer) RefreshScreen(dataStore textdata.DataStore, windowLength, windowHeight int) error {
 	rowPixel := 0
 	colPixel := 0
 
@@ -41,7 +39,7 @@ func (s *SimpleRenderer) RefreshScreen(windowLength, windowHeight int) error {
 	serverString[3] = "#000000"
 
 	for {
-		value, err := s.dataStore.ReadChar(rowPixel, colPixel)
+		value, err := dataStore.ReadChar(rowPixel, colPixel)
 		if err != nil {
 			return nil
 		}
