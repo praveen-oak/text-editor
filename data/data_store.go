@@ -5,34 +5,33 @@ import (
 )
 
 type DataStore interface {
-	ReadChar(x, y int) (byte, error)
-	UpdateChar(x, y int, c byte) error
-	AppendChar(x int, c byte) error
-	DeleteChar(x, y int) error
+	ReadChar(col, row int) (byte, error)
+	UpdateChar(col, row int, c byte) error
+	AppendChar(row int, c byte) error
+	DeleteChar(column, row int) error
 	AppendRow() error
-	InsertRow(x int) error
 	Reset() error
-	UpdateXY(x, y int) error
-	GetXY() (int, int)
-	GetWindow() (int, int)
-	UpdateWindow(x, y int) error
+	GetWindow() (col, row int)
+	UpdateWindow(col, row int) error
+	SetCursor(col, row int ) error
+	GetCursor() (col, row int)
 }
 
 type ArrayStore struct {
-	lineArray [][]byte
-	rows      int
-	cX        int
-	cY        int
-	windowX   int
-	windowY   int
+	lineArray    [][]byte
+	rows         int
+	windowRows   int
+	windowCols   int
+	cursorRow    int
+	cursorColumn int
 }
 
 func NewArrayStore() DataStore {
 	return &ArrayStore{
 		lineArray: make([][]byte, 0),
 		rows:      0,
-		cX:        0,
-		cY:        0,
+		cursorColumn:      0,
+		cursorRow:        0,
 	}
 }
 
@@ -96,35 +95,28 @@ func (a *ArrayStore) AppendRow() error {
 	return nil
 }
 
-func (a *ArrayStore) InsertRow(row int) error {
-	a.rows++
-	a.lineArray = append(a.lineArray[:row], a.lineArray[row+1:]...)
-	return nil
-}
-
 func (a *ArrayStore) Reset() error {
 	a.rows = 0
 	a.lineArray = make([][]byte, 0)
 	return nil
 }
 
-func (a *ArrayStore) UpdateXY(x, y int) error {
-	a.cX = x
-	a.cY = y
+func (a *ArrayStore) GetWindow() (x, y int) {
+	return a.windowRows, a.windowCols
+}
+func (a *ArrayStore) GetCursor() (column, row int) {
+	return a.cursorColumn, a.cursorRow
+}
+
+func (a *ArrayStore) SetCursor(column, row int) error {
+	a.cursorRow = row
+	a.cursorColumn = column
 	return nil
 }
 
-func (a *ArrayStore) GetXY() (x, y int) {
-	return a.cX, a.cY
-}
-
-func (a *ArrayStore) GetWindow() (x, y int) {
-	return a.windowX, a.windowY
-}
-
 func (a *ArrayStore) UpdateWindow(x, y int) error {
-	a.windowX = x
-	a.windowY = y
+	a.windowRows = x
+	a.windowCols = y
 	return nil
 }
 

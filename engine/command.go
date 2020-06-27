@@ -51,9 +51,23 @@ func NewSimpleEngine(dataStore textdata.DataStore, renderer renderer.Renderer) *
 func (s *SimpleEngine) Run(command *Command) error {
 	switch command.commandType {
 	case Resize:
-		s.dataStore.UpdateXY(command.col, command.row)
+		s.dataStore.UpdateWindow(command.col, command.row)
+		s.renderer.RefreshScreen(s.dataStore)
 	case Keydown:
-		s.dataStore.AppendChar(0, []byte(command.value)[0])
+		s.processKeyDown(command.value)
+		s.renderer.RefreshScreen(s.dataStore)
+	}
+	return nil
+}
+
+func (s *SimpleEngine) processKeyDown(value string) error {
+	cCol,cRow := s.dataStore.GetCursor()
+	if value == "Return" {
+		s.dataStore.AppendRow()
+		s.dataStore.SetCursor(0, cRow+1)
+	} else {
+		s.dataStore.AppendChar(cRow, value[0])
+		s.dataStore.SetCursor(cCol+1, cRow)
 	}
 	return nil
 }
